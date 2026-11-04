@@ -12,7 +12,7 @@ public class Bail {
     private LocalDate dateSignature;
     private LocalDate dateEntree;
     private LocalDate dateFin;
-    private String statut; // SIGNE, ACTIF, PREAVIS, TERMINE, ANNULE
+    private StatutBail statut; // SIGNE, ACTIF, PREAVIS, TERMINE, ANNULE
 
     private double loyerHorsCharges;
     private double charges;
@@ -35,7 +35,7 @@ public class Bail {
         this.etudiant = etudiant;
         this.logement = logement;
         this.dateSignature = dateSignature;
-        this.statut = "SIGNE";
+        this.statut = StatutBail.SIGNE;
     }
 
     public String getId() { return id; }
@@ -46,8 +46,8 @@ public class Bail {
     public void setDateEntree(LocalDate d) { this.dateEntree = d; }
     public LocalDate getDateFin() { return dateFin; }
     public void setDateFin(LocalDate d) { this.dateFin = d; }
-    public String getStatut() { return statut; }
-    public void setStatut(String statut) { this.statut = statut; }
+    public StatutBail getStatut() { return statut; }
+    public void setStatut(StatutBail statut) { this.statut = statut; }
     public double getLoyerHorsCharges() { return loyerHorsCharges; }
     public void setLoyerHorsCharges(double l) { this.loyerHorsCharges = l; }
     public double getCharges() { return charges; }
@@ -60,11 +60,11 @@ public class Bail {
 
     public String listerOptions() {
         String s = "";
-        if (menage) s = s + "ménage, ";
-        if (parking) s = s + "parking, ";
-        if (laverie) s = s + "laverie, ";
-        if (fibre) s = s + "fibre, ";
-        if (assurance) s = s + "assurance, ";
+        if (menage) s = s + Option.MENAGE.getLibelle() + ", ";
+        if (parking) s = s + Option.PARKING.getLibelle() + ", ";
+        if (laverie) s = s + Option.LAVERIE.getLibelle() + ", ";
+        if (fibre) s = s + Option.FIBRE.getLibelle() + ", ";
+        if (assurance) s = s + Option.ASSURANCE.getLibelle() + ", ";
         if (s.length() == 0) return "aucune";
         return s.substring(0, s.length() - 2);
     }

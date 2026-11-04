@@ -8,6 +8,14 @@ import java.util.List;
  */
 public class Residence {
 
+    private static final int COLONNE_TYPE = 0;
+    private static final int COLONNE_NUMERO = 1;
+    private static final int COLONNE_SURFACE = 2;
+    private static final int COLONNE_ETAGE = 3;
+    private static final int COLONNE_MEUBLE = 4;
+    private static final int COLONNE_PARAMETRE = 5;
+
+
     public static final String NOM = "Résidence Campus Vert";
 
     // TYPE;NUMERO;SURFACE;ETAGE;MEUBLE;PARAM (PARAM = nb de places en coloc, surface du balcon en T2)
@@ -29,24 +37,24 @@ public class Residence {
         logements.clear();
         for (String ligne : CATALOGUE) {
             String[] t = ligne.split(";");
-            String type = t[0];
-            String numero = t[1];
-            double surface = Double.parseDouble(t[2]);
-            int etage = Integer.parseInt(t[3]);
-            boolean meuble = Boolean.parseBoolean(t[4]);
-            int param = Integer.parseInt(t[5]);
+            TypeLogement type = TypeLogement.valueOf(t[COLONNE_TYPE]);
+            String numero = t[COLONNE_NUMERO];
+            double surface = Double.parseDouble(t[COLONNE_SURFACE]);
+            int etage = Integer.parseInt(t[COLONNE_ETAGE]);
+            boolean meuble = Boolean.parseBoolean(t[COLONNE_MEUBLE]);
+            int param = Integer.parseInt(t[COLONNE_PARAMETRE]);
             Logement l;
             switch (type) {
-                case "STUDIO":
+                case STUDIO:
                     l = new Studio(numero, surface, etage, meuble);
                     break;
-                case "T1":
+                case T1:
                     l = new T1(numero, surface, etage, meuble);
                     break;
-                case "T2":
+                case T2:
                     l = new T2(numero, surface, etage, meuble, param);
                     break;
-                case "COLOCATION":
+                case COLOCATION:
                     l = new Colocation(numero, surface, etage, meuble, param);
                     break;
                 default:
