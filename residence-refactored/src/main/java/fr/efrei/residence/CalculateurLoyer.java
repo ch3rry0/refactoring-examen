@@ -2,78 +2,38 @@ package fr.efrei.residence;
 
 public class CalculateurLoyer {
 
-    private static final double PRIX_M2_STUDIO = 14;
-    private static final double LOYER_MINIMUM_STUDIO = 350;
-    private static final double PRIX_M2_T1 = 13;
-    private static final double FORFAIT_T1 = 50;
-    private static final double PRIX_M2_T2 = 12;
-    private static final double FORFAIT_T2 = 100;
-    private static final double PRIX_M2_COLOCATION = 11;
     private static final double COEFFICIENT_MEUBLE = 1.15;
     private static final double COEFFICIENT_REZ_DE_CHAUSSEE = 0.95;
     private static final int REZ_DE_CHAUSSEE = 0;
-    private static final double COEFFICIENT_MENAGE_COLOCATION = 1.04;
-    private static final double COEFFICIENT_MENAGE = 1.08;
     private static final double PRIX_PARKING = 45;
     private static final double PRIX_LAVERIE = 12;
-    private static final double PRIX_FIBRE = 20;
     private static final double PRIX_ASSURANCE = 9;
-    private static final double REMISE_PAR_ECHELON = 0.05;
-    private static final double REMISE_MAXIMALE_BOURSIER = 0.30;
-    private static final double COEFFICIENT_ALTERNANT = 0.90;
-    private static final double CHARGES_COLOCATION = 25;
-    private static final double CHARGES_STANDARD = 35;
 
 
     /**
      * Loyer mensuel hors charges, options comprises, remise déduite.
      */
     public double calculerLoyer(Logement l, Profil profil, int echelon, boolean parking, boolean menage, boolean laverie, boolean fibre, boolean assurance) {
-        // loyer de base selon le type
-        double loyer;
-        if (l.getType().equals(TypeLogement.STUDIO)) {
-            loyer = l.getSurface() * PRIX_M2_STUDIO;
-            if (loyer < LOYER_MINIMUM_STUDIO) loyer = LOYER_MINIMUM_STUDIO;
-        } else if (l.getType().equals(TypeLogement.T1)) {
-            loyer = l.getSurface() * PRIX_M2_T1 + FORFAIT_T1;
-        } else if (l.getType().equals(TypeLogement.T2)) {
-            loyer = l.getSurface() * PRIX_M2_T2 + FORFAIT_T2;
-        } else if (l.getType().equals(TypeLogement.COLOCATION)) {
-            loyer = l.getSurface() * PRIX_M2_COLOCATION / l.getNombrePlaces();
-        } else {
-            throw new IllegalArgumentException("Type de logement inconnu : " + l.getType());
-        }
+        StrategieLogement strategieLogement = SelecteurStrategieLogement.choisir(l.getType());
+        StrategieProfil strategieProfil = SelecteurStrategieProfil.choisir(profil);
+        double loyer = strategieLogement.loyerBase(l);
 
         if (l.isMeuble()) loyer = loyer * COEFFICIENT_MEUBLE;
         if (l.getEtage() == REZ_DE_CHAUSSEE) loyer = loyer * COEFFICIENT_REZ_DE_CHAUSSEE;
 
         // options
-        if (menage) {
-            if (l.getType().equals(TypeLogement.COLOCATION)) {
-                loyer = loyer * COEFFICIENT_MENAGE_COLOCATION; // parties communes déjà nettoyées
-            } else {
-                loyer = loyer * COEFFICIENT_MENAGE;
-            }
-        }
+        if (menage) loyer = loyer * strategieLogement.coefficientMenage();
         if (parking) loyer = loyer + PRIX_PARKING;
         if (laverie) loyer = loyer + PRIX_LAVERIE;
-        if (fibre && !l.getType().equals(TypeLogement.COLOCATION)) loyer = loyer + PRIX_FIBRE; // fibre incluse en coloc
+        if (fibre) loyer = loyer + strategieLogement.prixFibre();
         if (assurance) loyer = loyer + PRIX_ASSURANCE;
 
-        // remise selon le profil
-        if (profil.equals(Profil.BOURSIER)) {
-            double taux = echelon * REMISE_PAR_ECHELON;
-            if (taux > REMISE_MAXIMALE_BOURSIER) taux = REMISE_MAXIMALE_BOURSIER;
-            loyer = loyer * (1 - taux);
-        } else if (profil.equals(Profil.ALTERNANT)) {
-            loyer = loyer * COEFFICIENT_ALTERNANT;
-        }
+        loyer = strategieProfil.appliquerRemise(loyer, echelon);
 
         return Utils.arrondir(loyer);
     }
 
     public double calculerCharges(Logement l) {
-        if (l.getType().equals(TypeLogement.COLOCATION)) return CHARGES_COLOCATION;
-        return CHARGES_STANDARD;
+        return SelecteurStrategieLogement.choisir(l.getType()).charges();
     }
 }
