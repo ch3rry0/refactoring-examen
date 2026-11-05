@@ -21,30 +21,34 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
-/**
- * Branche le code historique sur les tests de contrat.
- * <p>
- * Tout le « bricolage » nécessaire pour tester l'ancien code (état statique à vider,
- * conversion des enums, booléens d'options…) est confiné ici.
- */
 public class NouveauSystemeAdapter implements SystemeResidence {
 
     private GestionResidence gestion;
+    private Database database;
+    private Residence residence;
+    private EmailService emails;
+    private SmsService sms;
+    private CourrierService courriers;
+    private CalculateurLoyer calculateur;
 
     @Override
     public void reinitialiser() {
-        Database.getInstance();
-        Database.etudiants.clear();
-        Database.baux.clear();
-        EmailService.journal.clear();
-        SmsService.journal.clear();
-        CourrierService.journal.clear();
-        SmsService.compteurSms = 0;
-        CourrierService.totalAffranchissement = 0;
-        Etudiant.compteur = 0;
-        GestionResidence.compteurBail = 0;
-        Residence.initialiser();
-        gestion = new GestionResidence();
+        residence = new Residence();
+        residence.initialiser();
+        database = new Database();
+        emails = new EmailService();
+        sms = new SmsService();
+        courriers = new CourrierService();
+        calculateur = new CalculateurLoyer();
+        CanalNotificationFactory canaux = new CanalNotificationFactory(emails, sms, courriers);
+        ServiceNotification notifications = new ServiceNotification(database, canaux);
+        ServiceInscription inscriptions = new ServiceInscription(database);
+        ServiceAttribution attributions = new ServiceAttribution(database, residence, calculateur, notifications);
+        ServiceCycleBail cycleBail = new ServiceCycleBail(database, notifications);
+        ServiceRapport rapports = new ServiceRapport(database, residence, sms, courriers);
+        ServiceQuittance quittances = new ServiceQuittance();
+        gestion = new GestionResidence(inscriptions, attributions, cycleBail,
+                notifications, rapports, quittances);
     }
 
     @Override
@@ -62,7 +66,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public Optional<EtatLogement> logement(String numero) {
-        Logement l = Residence.trouver(numero);
+        Logement l = residence.trouver(numero);
         if (l == null) {
             return Optional.empty();
         }
@@ -78,12 +82,12 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public OptionalDouble devisLoyer(DemandeDevis d) {
-        Logement l = Residence.trouver(d.numeroLogement());
+        Logement l = residence.trouver(d.numeroLogement());
         if (l == null) {
             return OptionalDouble.empty();
         }
         Set<Option> o = d.options();
-        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l, fr.efrei.residence.Profil.valueOf(d.profil().name()), d.echelonBourse(),
+        return OptionalDouble.of(calculateur.calculerLoyer(l, fr.efrei.residence.Profil.valueOf(d.profil().name()), d.echelonBourse(),
                 optionsInternes(o)));
     }
 
@@ -101,7 +105,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public Optional<EtatBail> consulter(String idBail) {
-        Bail b = Database.baux.get(idBail);
+        Bail b = database.trouverBail(idBail);
         if (b == null) {
             return Optional.empty();
         }
@@ -137,7 +141,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public Optional<String> quittance(String idBail, YearMonth mois) {
-        return Optional.ofNullable(Database.baux.get(idBail)).map(b -> b.genererQuittance(mois.toString()));
+        return Optional.ofNullable(database.trouverBail(idBail)).map(b -> gestion.genererQuittance(b, mois.toString()));
     }
 
     @Override
@@ -153,23 +157,20 @@ public class NouveauSystemeAdapter implements SystemeResidence {
     @Override
     public List<Notification> notifications() {
         List<Notification> notifications = new ArrayList<>();
-        for (String[] email : EmailService.journal) {
+        for (String[] email : emails.getJournal()) {
             notifications.add(new Notification(Canal.EMAIL, email[0], email[1]));
         }
-        for (String[] sms : SmsService.journal) {
+        for (String[] sms : sms.getJournal()) {
             notifications.add(new Notification(Canal.SMS, sms[0], sms[1]));
         }
-        for (String[] courrier : CourrierService.journal) {
+        for (String[] courrier : courriers.getJournal()) {
             notifications.add(new Notification(Canal.COURRIER, courrier[0], courrier[1]));
         }
         return notifications;
     }
 
-    private static Etudiant etudiant(String ref) {
-        for (Etudiant e : Database.etudiants.values()) {
-            if (e.getId().equals(ref)) return e;
-        }
-        return null;
+    private Etudiant etudiant(String ref) {
+        return database.trouverEtudiantParId(ref);
     }
 
     private static Set<fr.efrei.residence.Option> optionsInternes(Set<Option> options) {

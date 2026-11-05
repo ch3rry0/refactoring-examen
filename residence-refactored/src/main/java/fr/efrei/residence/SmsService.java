@@ -10,8 +10,8 @@ public class SmsService implements CanalNotification {
     private static final String MARQUE_TRONCATURE = "...";
 
 
-    public static int compteurSms = 0;
-    public static List<String[]> journal = new ArrayList<String[]>();
+    private int compteurSms = 0;
+    private final List<String[]> journal = new ArrayList<String[]>();
 
     public void envoyerSms(String numero, String message) {
         if (numero == null || numero.length() < LONGUEUR_MINIMUM_NUMERO) {
@@ -35,5 +35,14 @@ public class SmsService implements CanalNotification {
     public void relancer(Etudiant etudiant, Bail bail) {
         envoyerSms(etudiant.getTelephone(),
                 "Campus Vert : " + Utils.euros(bail.soldeDu) + " impayés sur " + bail.getId());
+    }
+    @Override
+    public List<String[]> getJournal() {
+        return List.copyOf(journal);
+    }
+
+    @Override
+    public int nombreEnvois() {
+        return compteurSms;
     }
 }

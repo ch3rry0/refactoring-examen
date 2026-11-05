@@ -30,6 +30,24 @@ class LoyerDecorateurTest {
     }
 
     @Test
+    void ajouteLePrixDeLaLaverie() {
+        assertEquals(112, new LoyerLaverie(() -> 100).calculer(), DELTA);
+    }
+
+    @Test
+    void ajouteLePrixDeLaFibreSaufEnColocation() {
+        Logement studio = new Studio("A001", 20, 1, false);
+        Logement colocation = new Colocation("B001", 80, 1, false, 4);
+        assertEquals(120, new LoyerFibre(() -> 100, studio).calculer(), DELTA);
+        assertEquals(100, new LoyerFibre(() -> 100, colocation).calculer(), DELTA);
+    }
+
+    @Test
+    void ajouteLePrixDeLAssurance() {
+        assertEquals(109, new LoyerAssurance(() -> 100).calculer(), DELTA);
+    }
+
+    @Test
     void appliqueLaRemiseDuProfil() {
         assertEquals(90, new LoyerRemise(() -> 100, new ProfilAlternant(), 0).calculer(), DELTA);
     }

@@ -5,8 +5,22 @@ import java.time.LocalDate;
 public class Main {
 
     public static void main(String[] args) {
-        Residence.initialiser();
-        GestionResidence gestion = new GestionResidence();
+        Residence residence = new Residence();
+        residence.initialiser();
+        Database database = new Database();
+        EmailService emails = new EmailService();
+        SmsService sms = new SmsService();
+        CourrierService courriers = new CourrierService();
+        CalculateurLoyer calculateur = new CalculateurLoyer();
+        CanalNotificationFactory canaux = new CanalNotificationFactory(emails, sms, courriers);
+        ServiceNotification notifications = new ServiceNotification(database, canaux);
+        ServiceInscription inscriptions = new ServiceInscription(database);
+        ServiceAttribution attributions = new ServiceAttribution(database, residence, calculateur, notifications);
+        ServiceCycleBail cycleBail = new ServiceCycleBail(database, notifications);
+        ServiceRapport rapports = new ServiceRapport(database, residence, sms, courriers);
+        ServiceQuittance quittances = new ServiceQuittance();
+        GestionResidence gestion = new GestionResidence(inscriptions, attributions, cycleBail,
+                notifications, rapports, quittances);
 
         gestion.ajouterLogement(TypeLogement.STUDIO, "C002", 16, 0, false, 0);
         gestion.ajouterLogement(TypeLogement.DUPLEX, "C003", 60, 1, true, 0);
@@ -64,8 +78,8 @@ public class Main {
         gestion.payerLoyer(bC.getId(), "2026-10", LocalDate.of(2026, 10, 1), 1000);
 
         System.out.println();
-        System.out.println(bD.genererQuittance("2026-09"));
-        System.out.println(bA.genererQuittance("2026-10"));
+        System.out.println(gestion.genererQuittance(bD, "2026-09"));
+        System.out.println(gestion.genererQuittance(bA, "2026-10"));
 
         System.out.println();
         gestion.relancerImpayes();

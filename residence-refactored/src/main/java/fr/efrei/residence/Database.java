@@ -8,22 +8,13 @@ import java.util.Map;
 /**
  * Accès à la base de données (simulée en mémoire pour l'instant).
  */
-public class Database {
+public class Database implements BailRepository, EtudiantRepository {
 
-    private static Database instance;
+    private final Map<String, Etudiant> etudiants = new HashMap<String, Etudiant>();
+    private final Map<String, Bail> baux = new HashMap<String, Bail>();
 
-    public static Map<String, Etudiant> etudiants = new HashMap<String, Etudiant>();
-    public static Map<String, Bail> baux = new HashMap<String, Bail>();
-
-    private Database() {
+    public Database() {
         System.out.println("[DB] Connexion à jdbc:postgresql://db.campusvert.local:5432/residence");
-    }
-
-    public static Database getInstance() {
-        if (instance == null) {
-            instance = new Database();
-        }
-        return instance;
     }
 
     public void executer(String sql) {
@@ -59,5 +50,12 @@ public class Database {
         List<Bail> liste = new ArrayList<Bail>(baux.values());
         liste.sort((a, b) -> a.getId().compareTo(b.getId()));
         return liste;
+    }
+    @Override
+    public Etudiant trouverEtudiantParId(String id) {
+        for (Etudiant etudiant : etudiants.values()) {
+            if (etudiant.getId().equals(id)) return etudiant;
+        }
+        return null;
     }
 }

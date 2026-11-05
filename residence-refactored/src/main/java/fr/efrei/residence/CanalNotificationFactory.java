@@ -1,20 +1,19 @@
 package fr.efrei.residence;
 
-public final class CanalNotificationFactory {
+import java.util.Map;
 
-    private CanalNotificationFactory() {
+public final class CanalNotificationFactory {
+    private final Map<Canal, CanalNotification> canaux;
+
+    public CanalNotificationFactory(CanalNotification email, CanalNotification sms, CanalNotification courrier) {
+        canaux = Map.of(Canal.EMAIL, email, Canal.SMS, sms, Canal.COURRIER, courrier);
     }
 
-    public static CanalNotification creer(Canal canal) {
-        switch (canal) {
-            case EMAIL:
-                return new EmailService();
-            case SMS:
-                return new SmsService();
-            case COURRIER:
-                return new CourrierService();
-            default:
-                throw new IllegalArgumentException("Canal inconnu : " + canal);
+    public CanalNotification creer(Canal canal) {
+        CanalNotification notification = canaux.get(canal);
+        if (notification == null) {
+            throw new IllegalArgumentException("Canal inconnu : " + canal);
         }
+        return notification;
     }
 }
