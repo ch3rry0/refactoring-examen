@@ -84,8 +84,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
         }
         Set<Option> o = d.options();
         return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l, fr.efrei.residence.Profil.valueOf(d.profil().name()), d.echelonBourse(),
-                o.contains(Option.PARKING), o.contains(Option.MENAGE), o.contains(Option.LAVERIE),
-                o.contains(Option.FIBRE), o.contains(Option.ASSURANCE)));
+                optionsInternes(o)));
     }
 
     @Override
@@ -171,5 +170,11 @@ public class NouveauSystemeAdapter implements SystemeResidence {
             if (e.getId().equals(ref)) return e;
         }
         return null;
+    }
+
+    private static Set<fr.efrei.residence.Option> optionsInternes(Set<Option> options) {
+        return options.stream()
+                .map(option -> fr.efrei.residence.Option.valueOf(option.name()))
+                .collect(java.util.stream.Collectors.toSet());
     }
 }

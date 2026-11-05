@@ -2,7 +2,9 @@ package fr.efrei.residence;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class Bail {
 
@@ -19,11 +21,7 @@ public class Bail {
     private double caution;
     private double fraisDossier;
 
-    public boolean parking;
-    public boolean menage;
-    public boolean laverie;
-    public boolean fibre;
-    public boolean assurance;
+    private Set<Option> options = EnumSet.noneOf(Option.class);
 
     public List<Paiement> paiements = new ArrayList<Paiement>();
     public double soldeDu = 0;
@@ -57,14 +55,16 @@ public class Bail {
     public void setCaution(double c) { this.caution = c; }
     public double getFraisDossier() { return fraisDossier; }
     public void setFraisDossier(double f) { this.fraisDossier = f; }
+    public void setOptions(Set<Option> options) {
+        this.options = options.isEmpty() ? EnumSet.noneOf(Option.class) : EnumSet.copyOf(options);
+    }
+    public Set<Option> getOptions() { return Set.copyOf(options); }
 
     public String listerOptions() {
         String s = "";
-        if (menage) s = s + Option.MENAGE.getLibelle() + ", ";
-        if (parking) s = s + Option.PARKING.getLibelle() + ", ";
-        if (laverie) s = s + Option.LAVERIE.getLibelle() + ", ";
-        if (fibre) s = s + Option.FIBRE.getLibelle() + ", ";
-        if (assurance) s = s + Option.ASSURANCE.getLibelle() + ", ";
+        for (Option option : Option.values()) {
+            if (options.contains(option)) s = s + option.getLibelle() + ", ";
+        }
         if (s.length() == 0) return "aucune";
         return s.substring(0, s.length() - 2);
     }
