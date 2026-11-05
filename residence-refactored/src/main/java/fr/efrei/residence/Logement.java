@@ -26,6 +26,12 @@ public abstract class Logement implements ILogement {
     public boolean isMeuble() { return meuble; }
     public Etudiant getOccupant() { return occupant; }
 
+    public int getNombrePlaces() { return 1; }
+
+    public int getNombreOccupants() { return estLibre() ? 0 : 1; }
+
+    public double getSurfaceBalcon() { return 0; }
+
     public boolean estLibre() {
         return occupant == null;
     }
@@ -44,5 +50,10 @@ public abstract class Logement implements ILogement {
 
     public void liberer(Etudiant e) {
         occupant = null;
+    }
+
+    @Override
+    public void annuler(Etudiant e) {
+        liberer(e);
     }
 }

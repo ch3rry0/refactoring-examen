@@ -1,9 +1,7 @@
 package fr.efrei.residence;
 
-import java.util.List;
-
 /**
- * Tout ce qu'on peut faire avec un logement de la résidence.
+ * Opérations communes à tous les logements de la résidence.
  */
 public interface ILogement {
 
@@ -25,20 +23,7 @@ public interface ILogement {
 
     void liberer(Etudiant e);
 
+    void annuler(Etudiant e);
+
     Etudiant getOccupant();
-
-    // --- colocation ---
-    void ajouterColocataire(Etudiant e);
-
-    void retirerColocataire(Etudiant e);
-
-    List<Etudiant> getColocataires();
-
-    int getNombrePlaces();
-
-    // --- extérieur ---
-    double getSurfaceBalcon();
-
-    // --- entretien ---
-    void nettoyerPartiesCommunes();
 }

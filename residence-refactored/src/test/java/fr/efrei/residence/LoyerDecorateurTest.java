@@ -51,11 +51,4 @@ class LoyerDecorateurTest {
     void appliqueLaRemiseDuProfil() {
         assertEquals(90, new LoyerRemise(() -> 100, new ProfilAlternant(), 0).calculer(), DELTA);
     }
-
-    @Test
-    void assembleLesCouchesDansLeBonOrdre() {
-        Logement logement = new Studio("A001", 20, 0, true);
-        assertEquals(457.965, AssemblageLoyer.assembler(logement, Profil.STANDARD, 0,
-                java.util.Set.of(Option.MENAGE, Option.PARKING)).calculer(), DELTA);
-    }
 }

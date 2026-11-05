@@ -3,7 +3,7 @@ package fr.efrei.residence;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Colocation extends Logement {
+public class Colocation extends Logement implements LogementColocation {
 
     private int places;
     private List<Etudiant> colocataires = new ArrayList<Etudiant>();
@@ -15,12 +15,13 @@ public class Colocation extends Logement {
 
     @Override
     public void loger(Etudiant e) {
-        throw new UnsupportedOperationException("Utiliser ajouterColocataire() pour une colocation");
+        ajouterColocataire(e);
     }
 
     @Override
     public void liberer(Etudiant e) {
-        throw new UnsupportedOperationException("Utiliser retirerColocataire() pour une colocation");
+        retirerColocataire(e);
+        nettoyerPartiesCommunes();
     }
 
     @Override
@@ -32,6 +33,16 @@ public class Colocation extends Logement {
     public Etudiant getOccupant() {
         if (colocataires.isEmpty()) return null;
         return colocataires.get(0);
+    }
+
+    @Override
+    public int getNombrePlaces() {
+        return places;
+    }
+
+    @Override
+    public int getNombreOccupants() {
+        return colocataires.size();
     }
 
     public void ajouterColocataire(Etudiant e) {
@@ -49,15 +60,12 @@ public class Colocation extends Logement {
         return colocataires;
     }
 
-    public int getNombrePlaces() {
-        return places;
-    }
-
-    public double getSurfaceBalcon() {
-        throw new UnsupportedOperationException("Les colocations n'ont pas de balcon");
-    }
-
     public void nettoyerPartiesCommunes() {
         System.out.println("[ENTRETIEN] Nettoyage des parties communes de la colocation " + numero);
+    }
+
+    @Override
+    public void annuler(Etudiant e) {
+        retirerColocataire(e);
     }
 }

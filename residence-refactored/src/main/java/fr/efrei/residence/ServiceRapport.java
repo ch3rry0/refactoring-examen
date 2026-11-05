@@ -39,10 +39,7 @@ public class ServiceRapport {
             int nombreOccupants = occupants.getOrDefault(type, 0) + strategie.nombreOccupants(logement);
             places.put(type, nombrePlaces);
             occupants.put(type, nombreOccupants);
-            try {
-                surfaceBalcons += logement.getSurfaceBalcon();
-            } catch (UnsupportedOperationException ex) {
-            }
+            surfaceBalcons += logement.getSurfaceBalcon();
         }
         int nbStudios = places.getOrDefault(TypeLogement.STUDIO, 0);
         int nbStudiosOccupes = occupants.getOrDefault(TypeLogement.STUDIO, 0);

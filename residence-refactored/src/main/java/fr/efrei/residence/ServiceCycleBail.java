@@ -92,12 +92,7 @@ public class ServiceCycleBail {
             return false;
         }
         Logement logement = bail.getLogement();
-        if (logement instanceof Colocation) {
-            logement.retirerColocataire(bail.getEtudiant());
-            logement.nettoyerPartiesCommunes();
-        } else {
-            logement.liberer(bail.getEtudiant());
-        }
+        logement.liberer(bail.getEtudiant());
 
         double impayes = bail.soldeDu > 0 ? bail.soldeDu : 0;
         double restitution = bail.getCaution() - retenuesDegats - impayes;
@@ -130,11 +125,7 @@ public class ServiceCycleBail {
             return false;
         }
         Logement logement = bail.getLogement();
-        if (logement instanceof Colocation) {
-            logement.retirerColocataire(bail.getEtudiant());
-        } else {
-            logement.liberer(bail.getEtudiant());
-        }
+        logement.annuler(bail.getEtudiant());
         bail.setStatut(StatutBail.ANNULE);
         database.mettreAJourBail(bail);
         System.out.println("Bail " + idBail + " annulé, frais de dossier conservés : " + Utils.euros(bail.getFraisDossier()));

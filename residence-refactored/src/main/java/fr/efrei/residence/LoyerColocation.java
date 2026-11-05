@@ -25,8 +25,4 @@ public class LoyerColocation implements StrategieLogement {
         return CHARGES_COLOCATION;
     }
 
-    @Override
-    public int nombreOccupants(Logement logement) {
-        return logement.getColocataires().size();
-    }
 }

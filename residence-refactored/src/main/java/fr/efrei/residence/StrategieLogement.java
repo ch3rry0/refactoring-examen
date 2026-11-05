@@ -19,6 +19,6 @@ public interface StrategieLogement {
     }
 
     default int nombreOccupants(Logement logement) {
-        return logement.estLibre() ? 0 : 1;
+        return logement.getNombreOccupants();
     }
 }

@@ -67,11 +67,7 @@ public class ServiceAttribution {
             return null;
         }
 
-        if (choisi instanceof Colocation) {
-            choisi.ajouterColocataire(etudiant);
-        } else {
-            choisi.loger(etudiant);
-        }
+        choisi.loger(etudiant);
 
         compteurBail++;
         String id = "BAIL-" + String.format("%03d", compteurBail);
